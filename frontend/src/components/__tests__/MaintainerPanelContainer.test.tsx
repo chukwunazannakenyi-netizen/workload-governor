@@ -286,4 +286,52 @@ describe("MaintainerPanelContainer", () => {
 
     expect(screen.getByTestId("maintainer-panel-loading")).toBeInTheDocument();
   });
+
+  it("renders EmptyState when applications list is empty and loading is complete", async () => {
+    const client = makeMockClient({
+      list_applications: vi.fn().mockResolvedValue([]),
+    });
+    render(
+      <MaintainerPanelContainer
+        maintainerAddress={MAINTAINER}
+        orgIds={["stellar-org"]}
+        contractClient={client as any}
+      />
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId("maintainer-panel-container")).toBeInTheDocument()
+    );
+
+    // EmptyState renders with role="status" when applications list is empty
+    await waitFor(() => {
+      const emptyStates = screen.getAllByRole("status");
+      expect(emptyStates.length).toBeGreaterThan(0);
+    });
+  });
+
+  it("renders skeleton rows while application data is loading", async () => {
+    // is_maintainer resolves quickly but list_applications never resolves,
+    // so loading stays true after auth succeeds.
+    const client = makeMockClient({
+      list_applications: vi.fn().mockReturnValue(new Promise(() => {})),
+    });
+    render(
+      <MaintainerPanelContainer
+        maintainerAddress={MAINTAINER}
+        orgIds={["stellar-org"]}
+        contractClient={client as any}
+      />
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId("maintainer-panel-container")).toBeInTheDocument()
+    );
+
+    // The skeleton list should be present with aria-busy="true"
+    await waitFor(() => {
+      const busyList = document.querySelector('[aria-busy="true"][aria-label="Loading applications"]');
+      expect(busyList).not.toBeNull();
+    });
+  });
 });

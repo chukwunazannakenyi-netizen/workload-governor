@@ -150,6 +150,7 @@ export function MaintainerPanelContainer({
         onAssign={onAssign}
         onComplete={onComplete}
         onRevoke={onRevoke}
+        isLoading={loading}
       />
     </div>
   );

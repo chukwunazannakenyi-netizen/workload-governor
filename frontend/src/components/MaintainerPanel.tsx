@@ -14,6 +14,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import type { KeyboardEvent } from 'react';
 import { EmptyState } from './EmptyState';
 import { Icon } from './Icon';
+import { PanelRowSkeleton } from './Skeleton';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -66,6 +67,8 @@ interface Props {
   onComplete: (assignment: Assignment) => Promise<void>;
   onRevoke: (assignment: Assignment) => Promise<void>;
   mode?: PanelMode;
+  /** When true, renders skeleton rows while application data is loading */
+  isLoading?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -260,6 +263,7 @@ export function MaintainerPanel({
   onComplete,
   onRevoke,
   mode = "all",
+  isLoading = false,
 }: Props) {
   const [open, setOpen] = useState(true);
   const [pinned, setPinned] = useState(false);
@@ -362,7 +366,18 @@ export function MaintainerPanel({
               </span>
             </h3>
 
-            {sortedApps.length === 0 ? (
+            {isLoading ? (
+              <ul
+                className="panel-list"
+                aria-busy="true"
+                aria-label="Loading applications"
+                data-testid="applications-loading"
+              >
+                <PanelRowSkeleton />
+                <PanelRowSkeleton />
+                <PanelRowSkeleton />
+              </ul>
+            ) : sortedApps.length === 0 ? (
               <EmptyState
                 variant="no-applications"
                 compact
