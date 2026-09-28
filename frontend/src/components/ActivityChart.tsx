@@ -1,4 +1,5 @@
 import type { MonthlyActivity } from '../hooks/useActivityStats';
+import { Skeleton } from './Skeleton';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -39,6 +40,8 @@ function yTicks(maxVal: number): number[] {
 
 export interface ActivityChartProps {
   activity: MonthlyActivity[];
+  /** When true, renders a Skeleton shimmer placeholder instead of the chart. */
+  isLoading?: boolean;
 }
 
 /**
@@ -53,7 +56,15 @@ export interface ActivityChartProps {
  * Responsive: the SVG uses `viewBox` + `width="100%"` so it scales to
  * its container width automatically. No JS resize observer required.
  */
-export function ActivityChart({ activity }: ActivityChartProps) {
+export function ActivityChart({ activity, isLoading = false }: ActivityChartProps) {
+  if (isLoading) {
+    return (
+      <section className="activity-chart" aria-label="Monthly activity chart" aria-busy="true">
+        <Skeleton width="100%" height="204px" />
+      </section>
+    );
+  }
+
   if (activity.length === 0) {
     return (
       <section className="activity-chart" aria-label="Monthly activity chart">
